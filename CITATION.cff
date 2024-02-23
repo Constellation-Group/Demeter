@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite the research paper."
+preferred-citation:
+  type: conference-paper
+  conference:
+    name: "Intelligent Environments"
+  collection-title: "17th European Conference on Software Architecture"
+  authors:
+  - family-names: "Siffre"
+    given-names: "Lylian"
+  - family-names: "Breuil"
+    given-names: "Gabriel"
+  - family-names: "Noureddine"
+    given-names: "Adel"
+    orcid: "https://orcid.org/0000-0002-8585-574X"
+  - family-names: "Pawlak"
+    given-names: "Renaud"
+  title: "Demeter: An Architecture for Long-Term Monitoring of Software Power Consumption"
+  year: 2023
