@@ -15,7 +15,7 @@ Help will be printed and you will be able to tune Demeter.
 ## Build
 
 Requirements:
- - Intel Power Gadget: https://www.intel.com/content/www/us/en/developer/articles/tool/power-gadget.html
+ - Scaphandre: https://github.com/hubblo-org/windows-rapl-driver
  - Npcap: https://npcap.com/#download
  - spdlog (install via vcpkg): https://github.com/gabime/spdlog
  - cxxopts (install via vcpkg): https://github.com/jarro2783/cxxopts
@@ -33,7 +33,7 @@ Files description:
 | Demeter                | This is the main file.                                                                                                                     |
 | DemeterLogger          | This file starts the logger.                                                                                                               |
 | DiskDataGatherer       | This file is used to get for any process it's disk usage.                                                                                  |
-| EnergyLibGatherer      | This file is used to get the energy data from Intel Power Gadget.                                                                          |
+| EnergyGatherer         | This file is used to get the energy data from Scaphandre.                                                                                  |
 | ProcessInfoGatherer    | This file is used to know if a process is a service.                                                                                       |
 | ProcessNetDataGatherer | This file handles the network traffic and gives the bandwidth usage for every port and process.                                            |
 | RAMDataGatherer        | This file is used to get for any process it's RAM usage.                                                                                   |
