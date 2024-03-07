@@ -32,13 +32,11 @@
 #include <csignal>
 #include <windows.h>
 #include <strsafe.h>
-#include <iostream>
 #include <fstream>
 
 #include "misc.h" /* LoadNpcapDlls */
 #include "CPUDataGatherer.h"
 #include "RAMDataGatherer.h"
-#include "EnergyLibGatherer.h"
 #include "ProcessNetDataGatherer.h"
 #include "ProcessInfoGatherer.h"
 #include "DiskDataGatherer.h"
@@ -55,6 +53,7 @@
 
 #include <ranges>
 
+#include "EnergyGatherer.h"
 #include "UsageWatchdogManager.h"
 
 using namespace std;;
@@ -124,9 +123,9 @@ int start_demeter(const int kLoopInterval,
 	bool localloop,
 	bool std_output, 
 	float disk_r_cost, 
-	float disk_w_cost) 
+	float disk_w_cost,
+	bool force_use_platform) 
 {
-	// std::unordered_set<string> filter = GetFilter();
 
 	::ShowWindow(::GetConsoleWindow(), console ? SW_NORMAL : SW_HIDE);
 
@@ -151,35 +150,27 @@ int start_demeter(const int kLoopInterval,
 		spdlog::info("Successfully started sniffing");
 	}
 	else {
-		spdlog::info("Failed to start sniffing");
+		spdlog::error("Failed to start sniffing");
 	}
 
 	if (!std_output) {
 		open_csv_file();
 	}
 
+	if (LoadScaphandreDriver(force_use_platform))
+	{
+		spdlog::critical("Couldn't load Scaphandre Driver.");
+		exit(1);
+	}
+
 	signal(SIGINT, sigtrap);
 	signal(SIGTERM, sigtrap);
 	signal(SIGSEGV, sigtrap);
 
-	CIntelPowerGadgetLib intel_pg_lib;
-
-	if (!intel_pg_lib.IntelEnergyLibInitialize()) {
-		wstring last_err = intel_pg_lib.GetLastError();
-		auto err_msg = std::string(last_err.begin(), last_err.end());
-		spdlog::critical("%s", err_msg);
-		exit(1);
-	}
-
 	// Init for cpu usage formula
 	init_cpu_getters();
 
-	int num_nodes = 0;
-	int num_msrs = 0;
 	constexpr double kInfinity = std::numeric_limits<double>::infinity();
-
-	intel_pg_lib.GetNumNodes(&num_nodes);
-	intel_pg_lib.GetNumMsrs(&num_msrs);
 
 	spdlog::info("Loop interval: {}", kLoopInterval);
 
@@ -192,7 +183,7 @@ int start_demeter(const int kLoopInterval,
 
 	while (true) {
 		if (is_watchdog_under_lockdown()) {
-			spdlog::info("Watchdog triggered at {}, DEMETER under lockdown for 1 minute", time(nullptr));
+			spdlog::warn("Watchdog triggered at {}, DEMETER under lockdown for 1 minute", time(nullptr));
 			Sleep(60000);
 			// After sleeping, PM will push it's CPU readings and should
 			// update watchdog's lockdown state
@@ -212,18 +203,9 @@ int start_demeter(const int kLoopInterval,
 				open_csv_file();
 			}
 			current_day = today;
-			spdlog::debug("New day.");
 		}
 
-		if (!intel_pg_lib.ReadSample()) {
-			return 0;
-		}
-
-		double co2, price, power;
-		co2 = price = power = 0;
-
-		get_power_elib(&power, &intel_pg_lib, num_nodes, num_msrs);
-		update_vars_elib(&power, &co2, &price);
+		double energy_consumption = ReadEnergyConsumption();
 
 		// Get the list of process identifiers.
 		DWORD all_processes_pids[1024], returned_processes_count;
@@ -395,7 +377,7 @@ int start_demeter(const int kLoopInterval,
 				float process_net_up_consumption = kMilliWhConversion * process_bandwidth_up; // mWh
 				float process_net_down_consumption = kMilliWhConversion * process_bandwidth_down; // mWh
 
-				float process_cpu_consumption = static_cast<float>(power)*process_cpu_usage; // mWh
+				float process_cpu_consumption = static_cast<float>(energy_consumption)*process_cpu_usage; // mWh
 				process_cpu_usage *= 100.0f;
 
 				// qty of bytes => Mo/s
@@ -454,7 +436,7 @@ int start_demeter(const int kLoopInterval,
 			disk_read_usage_map.clear();
 			process_name_count_map.clear();
 		} else {
-			spdlog::info("Can't enum processes !");
+			spdlog::critical("Can't enum processes !");
 		}
 		spdlog::debug("Logged");
 
@@ -528,7 +510,8 @@ int main(const int argc, char* argv[]) {
 			cxxopts::value<float>()->default_value("0.98f"))
 		("l,loopbackcap", "Active ou desactive la capture des paquets en boucle locale", 
 			cxxopts::value<bool>()->default_value("true"))
-		("stdoutput", "Redirige l'�criture des donn�es dans la console.")
+		("stdoutput", "Redirige l'ecriture des donnees dans la console.")
+		("force_use_platform", "Force l'utilisation du registre MSR_PLATFORM_ENERGY_COUNTER")
 		("h,help", "Affiche l'aide");
 
 	const auto result = options.parse(argc, argv);
@@ -542,13 +525,17 @@ int main(const int argc, char* argv[]) {
 	const bool watchdog = result["watchdog"].as<bool>();
 	const int interval = result["interval"].as<int>();
 	const bool localloop = result["loopbackcap"].as<bool>();
-
-	// Default values
-
+	const bool force_use_platform = result["force_use_platform"].as<bool>();
 	const bool std_output =  result["stdoutput"].as<bool>();
-
 	const float disk_r_cost = result["drcost"].as<float>();
 	const float disk_w_cost = result["dwcost"].as<float>();
 
-	return start_demeter(interval, console, watchdog, localloop, std_output, disk_r_cost, disk_w_cost);
+	return start_demeter(interval,
+		console, 
+		watchdog, 
+		localloop,
+		std_output,
+		disk_r_cost, 
+		disk_w_cost, 
+		force_use_platform);
 }
