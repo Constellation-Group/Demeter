@@ -105,6 +105,7 @@ void sigtrap(int signo){
 	spdlog::info("SIGTRAP! {}", signo);
 
 	delete_usage_watchdog();
+	CloseScaphandre();
 
 	SIZE_T opened_handles_count;
 	pcap_t** opened_handles = get_pcap_handle(&opened_handles_count);
@@ -117,7 +118,7 @@ void sigtrap(int signo){
 	exit(0);
 }
 
-int start_demeter(const int kLoopInterval,
+int start_demeter(const int loop_interval,
 	bool console, 
 	bool watchdog, 
 	bool localloop,
@@ -135,7 +136,7 @@ int start_demeter(const int kLoopInterval,
 
 	set_loopback_capture(localloop);
 
-	spdlog::info("Started with interval {} second(s).", kLoopInterval);
+	spdlog::info("Started with interval {} second(s).", loop_interval);
 
 	/* Load Npcap and its functions. */
 	spdlog::info("Loading Npcap");
@@ -170,16 +171,16 @@ int start_demeter(const int kLoopInterval,
 	// Init for cpu usage formula
 	init_cpu_getters();
 
-	constexpr double kInfinity = std::numeric_limits<double>::infinity();
+	constexpr double infinity = std::numeric_limits<double>::infinity();
 
-	spdlog::info("Loop interval: {}", kLoopInterval);
+	spdlog::info("Loop interval: {}", loop_interval);
 
 	int current_day = -1;
-	const DWORD kDemeterPID = _getpid();
-	const string kFullTotalStr("System Total");
-	const string kApplicationTotalStr("Application Total");
-	const string kNotRecordedTotalStr("Not recorded Total");
-	const string kCPUEnergyStr("CPU Energy");
+	const DWORD demeter_pid = _getpid();
+	const string full_total_str("System Total");
+	const string application_total_str("Application Total");
+	const string not_recorded_total_str("Not recorded Total");
+	const string cpu_energy_str("CPU Energy");
 
 	while (true) {
 		if (is_watchdog_under_lockdown()) {
@@ -190,8 +191,8 @@ int start_demeter(const int kLoopInterval,
 		}
 
 		time_t process_data_loop_start = time(nullptr);
-		const tm* kLocalTime = localtime(&process_data_loop_start);
-		int today = kLocalTime->tm_mday;
+		const tm* local_time = localtime(&process_data_loop_start);
+		int today = local_time->tm_mday;
 
 		if (current_day == -1) {
 			current_day = today;
@@ -243,13 +244,13 @@ int start_demeter(const int kLoopInterval,
 
 				get_disk_stats(pid, process_handle, &process_disk_read, &process_disk_write);
 
-				if (kInfinity <= process_cpu_usage) {
+				if (infinity <= process_cpu_usage) {
 					process_cpu_usage = 0;
 				}
 
 				record_measurements(
 					CPU_usage_map,
-					kFullTotalStr,
+					full_total_str,
 					RAM_usage_map,
 					net_up_usage_map,
 					net_down_usage_map,
@@ -282,7 +283,7 @@ int start_demeter(const int kLoopInterval,
 
 					record_measurements(
 						CPU_usage_map,
-						kApplicationTotalStr,
+						application_total_str,
 						RAM_usage_map,
 						net_up_usage_map,
 						net_down_usage_map,
@@ -299,7 +300,7 @@ int start_demeter(const int kLoopInterval,
 				else {
 					record_measurements(
 						CPU_usage_map,
-						kNotRecordedTotalStr,
+						not_recorded_total_str,
 						RAM_usage_map,
 						net_up_usage_map,
 						net_down_usage_map,
@@ -316,7 +317,7 @@ int start_demeter(const int kLoopInterval,
 
 				// Push measurement for watchdog to lockdown PM in case
 				// of high cpu consumption
-				if (pid == kDemeterPID) {
+				if (pid == demeter_pid) {
 					push_cpu_measurement(process_cpu_usage);
 				}
 
@@ -325,7 +326,7 @@ int start_demeter(const int kLoopInterval,
 
 			record_measurements(
 				CPU_usage_map,
-				kCPUEnergyStr,
+				cpu_energy_str,
 				RAM_usage_map,
 				net_up_usage_map,
 				net_down_usage_map,
@@ -344,9 +345,9 @@ int start_demeter(const int kLoopInterval,
 			time_t process_data_gathering_end = time(nullptr);
 			time_t process_data_gathering_duration = (process_data_gathering_end - process_data_loop_start);
 			process_data_gathering_duration = 
-				process_data_gathering_duration < kLoopInterval 
+				process_data_gathering_duration < loop_interval 
 				? 
-				kLoopInterval
+				loop_interval
 				: 
 				process_data_gathering_duration;
 
@@ -372,10 +373,10 @@ int start_demeter(const int kLoopInterval,
 				// Value: 0.068 mWh/MB/s
 				// Config 10Mb/s => 306 mW => 30.6 mW/Mb/s
 				// => 244.8 mW/MB/s => 0.068 mWh/MB/s
-				const float kMilliWhConversion = 0.068f;
+				const float milli_wh_conversion = 0.068f;
 
-				float process_net_up_consumption = kMilliWhConversion * process_bandwidth_up; // mWh
-				float process_net_down_consumption = kMilliWhConversion * process_bandwidth_down; // mWh
+				float process_net_up_consumption = milli_wh_conversion * process_bandwidth_up; // mWh
+				float process_net_down_consumption = milli_wh_conversion * process_bandwidth_down; // mWh
 
 				float process_cpu_consumption = static_cast<float>(energy_consumption)*process_cpu_usage; // mWh
 				process_cpu_usage *= 100.0f;
@@ -444,7 +445,7 @@ int start_demeter(const int kLoopInterval,
 		time_t process_data_loop_exec_time = (process_data_loop_end - process_data_loop_start) * 1000;
 		spdlog::debug("Took {} ms", process_data_loop_exec_time);
 
-		time_t time_to_wait = (static_cast<long long>(kLoopInterval) * 1000) - (process_data_loop_exec_time);
+		time_t time_to_wait = (static_cast<long long>(loop_interval) * 1000) - (process_data_loop_exec_time);
 		map_ports_to_pid();
 		if (time_to_wait > 0) {
 			Sleep(static_cast<DWORD>(time_to_wait));

@@ -33,3 +33,5 @@ int LoadScaphandreDriver(BOOL = false);
 float ReadEnergyConsumption(UINT64, BOOL = true);
 
 float ReadEnergyConsumption(BOOL = true);
+
+void CloseScaphandre();

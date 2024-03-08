@@ -16,7 +16,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 #include "EnergyGatherer.h"
-#include <iostream>
 #include <map>
 #include "DemeterLogger.h"
 
@@ -57,7 +56,7 @@ BOOL readData(UINT64 inputData, UINT64* outputData, DWORD* bytesReturned)
         bytesReturned,
         NULL
     )) {
-        std::cerr << "DeviceIoControl failed. Error code: " << GetLastError() << std::endl;
+        spdlog::error("DeviceIoControl failed. Error code: {}", GetLastError());
         return 0;
     }
 
@@ -73,7 +72,7 @@ void loadEnergyConversionUnits()
 {
 	if(driver_handle == NULL)
 	{
-        std::cerr << "Scaphandre must be loaded." << std::endl;
+        spdlog::error("Scaphandre must be loaded.");
         return;
 	}
 
@@ -83,7 +82,7 @@ void loadEnergyConversionUnits()
 
     if (!readData(energy_unit_msr, &res, &bytes_returned))
     {
-        std::cerr << "Couldn't read data from MSR. See previous error." << std::endl;
+        spdlog::error("Couldn't read data from MSR. See previous error.");
         return;
     }
 
@@ -115,7 +114,7 @@ int LoadScaphandreDriver(BOOL force_use_platform)
 {
     if(driver_handle != NULL)
     {
-        std::cerr << "Scaphandre already loaded." << std::endl;
+        spdlog::error("Scaphandre already loaded.");
         return 1;
     }
 
@@ -130,7 +129,7 @@ int LoadScaphandreDriver(BOOL force_use_platform)
     );
 
     if (driver_handle == INVALID_HANDLE_VALUE) {
-        std::cerr << "Failed to open device. Error code: " << GetLastError() << std::endl;
+        spdlog::error("Failed to open device. Error code: {}", GetLastError());
         return 1;
     }
 
@@ -157,7 +156,7 @@ float readEnergyConsumption(UINT64 msr)
 {
     if (driver_handle == NULL)
     {
-        std::cerr << "Scaphandre must be loaded." << std::endl;
+        spdlog::error("Scaphandre must be loaded.");
         return -1.0f;
     }
 
@@ -166,7 +165,7 @@ float readEnergyConsumption(UINT64 msr)
 
     if (!readData(msr, &res, &bytes_returned))
     {
-        std::cerr << "Couldn't read data from MSR. See previous error." << std::endl;
+        spdlog::error("Couldn't read data from MSR. See previous error.");
         return-1.0f;
     }
 
@@ -202,7 +201,7 @@ float ReadEnergyConsumption(UINT64 msr, BOOL update_time)
 
     if (energy_consumption <= -1.0f)
     {
-        std::cerr << "Couldn't read energy consumption. See previous error." << std::endl;
+        spdlog::error("Couldn't read energy consumption. See previous error.");
         return-1.0f;
     }
 
@@ -231,7 +230,7 @@ float ReadEnergyConsumption(BOOL update_time)
 
     if (energy_consumption <= -1.0f)
     {
-        std::cerr << "Couldn't read energy consumption. See previous error." << std::endl;
+        spdlog::error("Couldn't read energy consumption. See previous error.");
         return-1.0f;
     }
 
