@@ -3,7 +3,7 @@ message: "If you use this software, please cite the research paper."
 preferred-citation:
   type: conference-paper
   conference:
-    name: "Intelligent Environments"
+    name: "ECSA"
   collection-title: "17th European Conference on Software Architecture"
   authors:
   - family-names: "Siffre"
