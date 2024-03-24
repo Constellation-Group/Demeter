@@ -87,7 +87,7 @@ To cite our work in a research paper, please cite our paper in the 17th European
   booktitle = {17th European Conference on Software Architecture (ECSA 2023)},
   address = {Istanbul, Turkey},
   year = {2023},
-  month = {Se},
+  month = {Sep},
   keywords = {Power Monitoring; Measurement; Energy Consumption; Long-term Monitoring; Distributed Architecture; Software Engineering}
 }
 ```
