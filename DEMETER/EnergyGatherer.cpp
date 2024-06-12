@@ -193,7 +193,7 @@ float readEnergyConsumption(UINT64 msr)
  *
  * @param msr MSR to read energy consumption from.
  * @param update_time Boolean flag indicating whether to update the last sample time.
- * @return Returns the energy consumption in Joules.
+ * @return Returns the energy consumption in milliwatt-hour.
  */
 float ReadEnergyConsumption(UINT64 msr, BOOL update_time)
 {
@@ -221,7 +221,7 @@ float ReadEnergyConsumption(UINT64 msr, BOOL update_time)
  * the package register.
  *
  * @param update_time Boolean flag indicating whether to update the last sample time.
- * @return Returns the energy consumption in Watt hours.
+ * @return Returns the energy consumption in milliwatt-hour.
  */
 float ReadEnergyConsumption(BOOL update_time)
 {
