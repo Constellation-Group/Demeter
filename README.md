@@ -1,86 +1,99 @@
-## Presentation
+# Demeter
 
-DEMETER stands for Desktop Energy METER. This software aims to fill the gap in probing softwares for Windows desktops.
-Indeed, the Windows probing softwares landscape is lacking one that can finely give energy consumed by the components of the computer, and per running process.
-This program is a command line program or a process that can run in the background. It will log in a CSV file the consumption of each component for each running process.
-The structure of the CSV is explained below. The conversion values can be found in the code (file Demeter.cpp) and below.
+Demeter (Desktop Energy METER) is a command-line tool for monitoring the energy consumption of Windows desktop components and processes. It logs detailed consumption metrics in a CSV file, enabling in-depth analysis of energy usage.
+
+## Features
+
+- Monitors CPU, RAM, disk, and network usage
+- Logs energy consumption per process
+- Generates CSV files with detailed metrics
+- Runs as a background process
+
+## Requirements
+
+- [Scaphandre](https://github.com/hubblo-org/windows-rapl-driver)
+- [Npcap](https://npcap.com/#download)
+- [spdlog](https://github.com/gabime/spdlog) (via vcpkg)
+- [cxxopts](https://github.com/jarro2783/cxxopts) (via vcpkg)
+
+## Installation
+
+1. Clone the repository:
+    ```sh
+    git clone https://github.com/Constellation-Group/Demeter.git
+    cd Demeter
+    ```
+
+2. Install dependencies:
+    ```sh
+    vcpkg install spdlog cxxopts
+    ```
+
+3. Open the project in Visual Studio and build in Release configuration (Ctrl+B). The binary will be located at `PROJECT_ROOT\x64\Release\DEMETER.exe`.
 
 ## Usage
 
-To start Demeter, you simply need to launch the executable from your explorer.
-If you want to tune Demeter, start demeter through the terminal with the -h flag like so:
-`./Demeter.exe -h`
-Help will be printed and you will be able to tune Demeter.
+To start Demeter, simply run the executable:
+```sh
+./Demeter.exe
+```
 
-## Build
+For configuration options, run:
+```sh
+./Demeter.exe -h
+```
 
-Requirements:
- - Scaphandre: https://github.com/hubblo-org/windows-rapl-driver
- - Npcap: https://npcap.com/#download
- - spdlog (install via vcpkg): https://github.com/gabime/spdlog
- - cxxopts (install via vcpkg): https://github.com/jarro2783/cxxopts
+## Output
 
-To build DEMETER you simply have to open the project in Visual Studio and build (Ctrl+B) in Release configuration.
-The path to the generated binary should be in `PROJECT_ROOT\x64\Release\DEMETER.exe`.
+Demeter generates a CSV file with the following columns:
+
+- **TIME**: Timestamp (seconds)
+- **NAME**: Process filename
+- **CPU**: CPU usage (%)
+- **CPUC**: CPU energy consumed (mWh)
+- **NETUP**: Upstream bandwidth (MB/s)
+- **NETUPC**: Upstream energy consumed (mWh)
+- **NETDOWN**: Downstream bandwidth (MB/s)
+- **NETDOWNC**: Downstream energy consumed (mWh)
+- **DISKR**: Disk read speed (MB/s)
+- **DISKW**: Disk write speed (MB/s)
+- **DISKRC**: Disk read energy consumed (mWh)
+- **DISKWC**: Disk write energy consumed (mWh)
+- **RAM**: RAM usage (bytes)
+- **SUMC**: Total energy consumption (mWh)
 
 ## Architecture
 
-The architecture does not exploit OOP. It is instead rather simple with method calls and small methods.
-Files description:
-| Filename               | Description                                                                                                                                |
-|------------------------|--------------------------------------------------------------------------------------------------------------------------------------------|
-| CPUDataGatherer        | This file is used to get for any process it's CPU usage.                                                                                   |
-| Demeter                | This is the main file.                                                                                                                     |
-| DemeterLogger          | This file starts the logger.                                                                                                               |
-| DiskDataGatherer       | This file is used to get for any process it's disk usage.                                                                                  |
-| EnergyGatherer         | This file is used to get the energy data from Scaphandre.                                                                                  |
-| ProcessInfoGatherer    | This file is used to know if a process is a service.                                                                                       |
-| ProcessNetDataGatherer | This file handles the network traffic and gives the bandwidth usage for every port and process.                                            |
-| RAMDataGatherer        | This file is used to get for any process it's RAM usage.                                                                                   |
-| SystemInfoGatherer     | This file is used to get informations about the system, such as the name of the user.                                                      |
-| UsageWatchdog          | This file describes the watchdog and it's behavior.                                                                                        |
-| UsageWatchdogManager   | This file gives the watchdog data about Demeter's consumption and is used to tell if the watchdog is fully operational and under lockdown. |
+The project is organized into several key files:
 
-## Output file
+- **CPUDataGatherer**: Gathers CPU usage per process
+- **Demeter**: Main executable
+- **DemeterLogger**: Handles logging
+- **DiskDataGatherer**: Gathers disk usage per process
+- **EnergyGatherer**: Retrieves energy data from Scaphandre
+- **ProcessInfoGatherer**: Identifies if a process is a service
+- **ProcessNetDataGatherer**: Monitors network traffic
+- **RAMDataGatherer**: Gathers RAM usage per process
+- **SystemInfoGatherer**: Collects system information
+- **UsageWatchdog**: Describes watchdog behavior
+- **UsageWatchdogManager**: Manages watchdog data and operational status
 
-The output file is a CSV file created when Demeter starts.
-Fields description:
-| LABEL    | DESCRIPTION                                   | UNIT         |
-|----------|-----------------------------------------------|--------------|
-| TIME     | Record timestamp                              | Second       |
-| NAME     | Process's filename                            | N/A          |
-| CPU      | CPU usage                                     | % CPU        |
-| CPUC     | Energy consumed                               | mWh          |
-| NETUP    | Upstream bandwidth usage                      | Mo/s         |
-| NETUPC   | Energy consumed by upstream bandwidth usage   | mWh          |
-| NETDOWN  | Downstream bandwidth usage                    | Mo/s         |
-| NETDOWNC | Energy consumed by downstream bandwidth usage | mWh          |
-| DISKR    | Disk read speed                               | Mo/s         |
-| DISKW    | Disk write speed                              | Mo/s         |
-| DISKRC   | Energy consumed by disk read                  | mWh          |
-| DISKWC   | Energy consumed by disk write                 | mWh          |
-| RAM      | Private usage                                 | Byte         |
-| SUMC     | Sum of energy consumption                     | mWh          |
+## Conversion Values
 
-If an output file for this day already existed when Demeter started, the line `----RESTARTLINE----\n` will be appended to the file to let the user know that this line is eventually incomplete.
+The following conversion formulas are used to compute energy consumption:
 
-## Conversion values
+- **Network**: `B * 0.068` (B = Bandwidth in MB/s)
+- **Disk Read**: `DR * 0.78` (DR = Disk Read bitrate in MB/s)
+- **Disk Write**: `DW * 0.98` (DW = Disk Write bitrate in MB/s)
 
-To compute some of our fields we use some conversion values.
-Conversion values per field:
-| Field      | Conversion formula | Variables                                     |
-|------------|--------------------|-----------------------------------------------|
-| Network    | B*0.068            | B stands for the Bandwidth in MB/s            |
-| Disk Read  | DR*0.78            | DR stands for the Disk Read bitrate in MB/s   |
-| Disk Write | DW*0.98            | DW stands for the Disk Write biterate in MB/s |
+## Citation
 
-## Cite this work
+If you use Demeter in your research, please cite our paper:
 
-To cite our work in a research paper, please cite our paper in the 17th European Conference on Software Architecture (ECSA 2023).
+> Demeter: An Architecture for Long-Term Monitoring of Software Power Consumption. Lylian Siffre, Gabriel Breuil, Adel Noureddine, and Renaud Pawlak. In the 17th European Conference on Software Architecture (ECSA 2023). Istanbul, Turkey, September 2023.
 
-- **Demeter: An Architecture for Long-Term Monitoring of Software Power Consumption**. Lylian Siffre, Gabriel Breuil, Adel Noureddine, and Renaud Pawlak. In the 17th European Conference on Software Architecture (ECSA 2023). Istanbul, Turkey, September 2023.
-
-```
+BibTeX entry:
+```bibtex
 @inproceedings{demeter-ecsa-2023,
   title = {Demeter: An Architecture for Long-Term Monitoring of Software Power Consumption},
   author = {Siffre, Lylian and Breuil, Gabriel and Noureddine, Adel and Pawlak, Renaud},
