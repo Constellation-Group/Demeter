@@ -2,6 +2,8 @@
 
 Demeter (Desktop Energy METER) is a command-line tool for monitoring the energy consumption of Windows desktop components and processes. It logs detailed consumption metrics in a CSV file, enabling in-depth analysis of energy usage.
 
+Website: https://www.noureddine.org/research/demeter
+
 ## Features
 
 - Monitors CPU, RAM, disk, and network usage
@@ -109,5 +111,5 @@ BibTeX entry:
 
 Demeter is licensed under the GNU GPL 3 license only (GPL-3.0-only).
 
-Copyright (c) 2022-2024, Constellation.
+Copyright (c) 2022-2024, Constellation & Université de Pau et des Pays de l'Adour.
 All rights reserved. This program and the accompanying materials are made available under the terms of the GNU General Public License v3.0 only (GPL-3.0-only) which accompanies this distribution, and is available at: https://www.gnu.org/licenses/gpl-3.0.en.html
