@@ -1,6 +1,8 @@
 # Ignore demeter generated files
 log-*.csv
 
+.Rhistory
+
 # Created by https://www.toptal.com/developers/gitignore/api/visualstudio,intellij,c++
 # Edit at https://www.toptal.com/developers/gitignore?templates=visualstudio,intellij,c++
 
