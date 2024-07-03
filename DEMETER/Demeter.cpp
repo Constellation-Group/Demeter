@@ -496,24 +496,21 @@ int main(const int argc, char* argv[]) {
 
 	initialize_logger();
 
-	cxxopts::Options options("DEMETER", "Programme de mesure de l'impact des logiciels");
+	cxxopts::Options options("DEMETER", "Desktop Energy Meter");
 
 	options.add_options()
-		("c,console", "Active ou desactive la console", 
-			cxxopts::value<bool>()->default_value("true"))
-		("w,watchdog", "Active ou desactive le watchdog", 
-			cxxopts::value<bool>()->default_value("true"))
-		("i,interval", "Definit l'intervalle de mesure en secondes (defaut = 10)", 
+		("c,hide-console", "Hides the console")
+		("w,no-watchdog", "Disables the watchdog")
+		("i,interval", "Defines the measurement interval in seconds", 
 			cxxopts::value<int>()->default_value("10"))
-		("drcost", "Definit le cout de la lecture disque (mW/MB)", 
+		("drcost", "Sets the disc reading cost (mW/MB)", 
 			cxxopts::value<float>()->default_value("0.78f"))
-		("dwcost", "Definit le cout de l'ecriture disque (mW/MB)", 
+		("dwcost", "Sets disk write cost (mW/MB)", 
 			cxxopts::value<float>()->default_value("0.98f"))
-		("l,loopbackcap", "Active ou desactive la capture des paquets en boucle locale", 
-			cxxopts::value<bool>()->default_value("true"))
-		("stdoutput", "Redirige l'ecriture des donnees dans la console.")
-		("force_use_platform", "Force l'utilisation du registre MSR_PLATFORM_ENERGY_COUNTER")
-		("h,help", "Affiche l'aide");
+		("l,no-loopbackcap", "Disables local loop packet capture")
+		("stdoutput", "Redirects data writing to the console")
+		("use-platform", "Force the use of the MSR_PLATFORM_ENERGY_COUNTER register")
+		("h,help", "Displays help");
 
 	const auto result = options.parse(argc, argv);
 
@@ -522,11 +519,11 @@ int main(const int argc, char* argv[]) {
 		exit(0);
 	}
 
-	const bool console = result["console"].as<bool>();
-	const bool watchdog = result["watchdog"].as<bool>();
+	const bool console = !result["hide-console"].as<bool>();
+	const bool watchdog = !result["no-watchdog"].as<bool>();
 	const int interval = result["interval"].as<int>();
-	const bool localloop = result["loopbackcap"].as<bool>();
-	const bool force_use_platform = result["force_use_platform"].as<bool>();
+	const bool localloop = !result["no-loopbackcap"].as<bool>();
+	const bool force_use_platform = result["use-platform"].as<bool>();
 	const bool std_output =  result["stdoutput"].as<bool>();
 	const float disk_r_cost = result["drcost"].as<float>();
 	const float disk_w_cost = result["dwcost"].as<float>();
