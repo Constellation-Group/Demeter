@@ -117,7 +117,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;WPCAP;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING;_DEBUG;_CONSOLE;WPCAP;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(ProjectDir)\npcap-sdk-1.13\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -169,7 +169,6 @@
     <ClCompile Include="DemeterLogger.cpp" />
     <ClCompile Include="RAMDataGatherer.cpp" />
     <ClCompile Include="EnergyGatherer.cpp" />
-    <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="SystemInfoGatherer.cpp" />
     <ClCompile Include="UsageWatchdog.cpp" />
     <ClCompile Include="UsageWatchdogManager.cpp" />
@@ -184,9 +183,7 @@
     <ClInclude Include="DemeterLogger.h" />
     <ClInclude Include="RAMDataGatherer.h" />
     <ClInclude Include="EnergyGatherer.h" />
-    <ClInclude Include="stdafx.h" />
     <ClInclude Include="SystemInfoGatherer.h" />
-    <ClInclude Include="targetver.h" />
     <ClInclude Include="UsageWatchdog.h" />
     <ClInclude Include="UsageWatchdogManager.h" />
   </ItemGroup>
