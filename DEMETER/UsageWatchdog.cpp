@@ -61,9 +61,9 @@ void UsageWatchdog::push_measurement(const float cpu_percent) {
 
 	const auto seconds = static_cast<unsigned long>(difftime(now, start_time_));
 
-	if (seconds >= 1200) { 
+	if (seconds >= 3600) { 
 		avg_first_hour_ = sum_first_hour_ / static_cast<float>(amount_of_measurements_);
-		spdlog::info("Watchdog calibration ended.");
+		spdlog::info("Watchdog calibration ended. Average: {}", avg_first_hour_);
 	}
-	calibration_ended_ = seconds >= 1200;
+	calibration_ended_ = seconds >= 3600;
 }

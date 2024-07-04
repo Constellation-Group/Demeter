@@ -18,16 +18,10 @@
     <ClCompile Include="Demeter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="IntelPowerGadgetLib.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CPUDataGatherer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="EnergyLibGatherer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="RAMDataGatherer.cpp">
@@ -57,11 +51,11 @@
     <ClCompile Include="misc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="EnergyGatherer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="IntelPowerGadgetLib.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="stdafx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -69,9 +63,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CPUDataGatherer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="EnergyLibGatherer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="RAMDataGatherer.h">
@@ -102,6 +93,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Demeter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EnergyGatherer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
