@@ -5,7 +5,7 @@ Demeter (Desktop Energy METER) is a command-line tool for monitoring the energy 
 ## Features
 
 - Monitors CPU, RAM, disk, and network usage of all running applications
-- Continously logs energy consumption per process
+- Continuously logs energy consumption per process
 - Generates CSV files with detailed metrics
 - Runs as a background process
 
